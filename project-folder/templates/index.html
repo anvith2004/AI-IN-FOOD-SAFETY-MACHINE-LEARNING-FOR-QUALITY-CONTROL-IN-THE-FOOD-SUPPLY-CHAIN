@@ -1,0 +1,89 @@
+<!-- templates/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Risk Decision Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Risk Decision Prediction</h1>
+    <form id="prediction-form">
+        <label for="category">Category</label>
+        <select id="category" name="category" required>
+            <option value="" disabled selected>Select Category</option>
+            {% for option in dropdown_options['category'] %}
+            <option value="{{ option }}">{{ option }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="type">Type</label>
+        <select id="type" name="type" required>
+            <option value="" disabled selected>Select Type</option>
+            {% for option in dropdown_options['type'] %}
+            <option value="{{ option }}">{{ option }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="subject">Subject</label>
+        <input type="text" id="subject" name="subject" required>
+
+        <label for="notifying_country">Notifying Country</label>
+        <select id="notifying_country" name="notifying_country" required>
+            <option value="" disabled selected>Select Notifying Country</option>
+            {% for option in dropdown_options['notifying_country'] %}
+            <option value="{{ option }}">{{ option }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="classification">Classification</label>
+        <select id="classification" name="classification" required>
+            <option value="" disabled selected>Select Classification</option>
+            {% for option in dropdown_options['classification'] %}
+            <option value="{{ option }}">{{ option }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="operator">Operator</label>
+        <input type="text" id="operator" name="operator" required>
+
+        <label for="origin">Origin</label>
+        <input type="text" id="origin" name="origin" required>
+
+        <label for="hazards">Hazards</label>
+        <input type="text" id="hazards" name="hazards" required>
+
+        <button type="submit">Predict</button>
+    </form>
+    <div class="result" id="result"></div>
+    <script>
+        const form = document.getElementById('prediction-form');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            resultDiv.innerHTML = '';
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    resultDiv.innerHTML = `<p><strong>Predicted Risk Decision:</strong> ${data.predicted_risk_decision}</p>`;
+                } else {
+                    resultDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> ${data.error}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: red;"><strong>Unexpected Error:</strong> ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
